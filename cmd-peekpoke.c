@@ -41,3 +41,21 @@ int cmd_poke(int argc, char **argv)
 
 	return 0;
 }
+
+/* 16-bit store (strh): needed for the DSP memory windows and 16-bit APB
+ * registers where a 32-bit store would not write the odd half-word. */
+int cmd_pokew(int argc, char **argv)
+{
+	uint32_t offset, val;
+
+	if (argc < 2) {
+		printf("Usage: pokew [offset] [val16]\n");
+		return -1;
+	}
+	offset = strtoul(argv[0], NULL, 0);
+	val = strtoul(argv[1], NULL, 0);
+	printf("Setting halfword at 0x%08"PRIx32" to 0x%04"PRIx32": ", offset, val & 0xffff);
+	*((volatile uint16_t *)offset) = val;
+	printf("Ok\n");
+	return 0;
+}

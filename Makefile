@@ -2,7 +2,8 @@ include mkenv.mk
 include magic.mk
 
 CFLAGS = -march=armv5te -mfloat-abi=soft -Wall \
-	 -Os -ggdb -Iinclude -marm -fno-stack-protector
+	 -Os -ggdb -Iinclude -marm -fno-stack-protector \
+	 -ffreestanding -fno-builtin -fno-tree-loop-distribute-patterns
 AFLAGS = 
 
 LDFLAGS = --nostdlib -T fernvale.ld

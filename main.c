@@ -205,6 +205,7 @@ static int do_init(void)
 	shell_run_command("bl 5");
 	shell_run_command("lcd init");
 	shell_run_command("lcd tpd");
+	shell_run_command("lcd hello");
 
 	/* Initialize the keypad */
 	scriptic_run("set_kbd");
@@ -341,10 +342,12 @@ static int loop(void)
 
 static int cmd_help(int argc, char **argv);
 extern int cmd_hex(int argc, char **argv);
+extern int cmd_hexw(int argc, char **argv);
 extern int cmd_irq(int argc, char **argv);
 extern int cmd_msleep(int argc, char **argv);
 extern int cmd_peek(int argc, char **argv);
 extern int cmd_poke(int argc, char **argv);
+extern int cmd_pokew(int argc, char **argv);
 extern int cmd_spi(int argc, char **argv);
 extern int cmd_spi_raw(int argc, char **argv);
 extern int cmd_swi(int argc, char **argv);
@@ -382,6 +385,11 @@ static const struct {
 		.help = "Print area of memory as hex",
 	},
 	{
+		.func = cmd_hexw,
+		.name = "hexw",
+		.help = "Print area of memory as 16-bit words",
+	},
+	{
 		.func = cmd_peek,
 		.name = "peek",
 		.help = "Look at one area of memory",
@@ -390,6 +398,11 @@ static const struct {
 		.func = cmd_poke,
 		.name = "poke",
 		.help = "Write a value to an area of memory",
+	},
+	{
+		.func = cmd_pokew,
+		.name = "pokew",
+		.help = "Write one 16-bit halfword",
 	},
 	{
 		.func = cmd_irq,

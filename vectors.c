@@ -25,8 +25,9 @@ void prefetch_abort_handler(void) {
 }
 
 void data_abort_handler(void) {
+	/* Called from data_abort_entry (start.S), which resumes execution
+	 * after the faulting instruction. */
 	serial_puts("Data abort exception\n");
-	while(1);
 	return;
 }
 

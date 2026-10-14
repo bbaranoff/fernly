@@ -1611,6 +1611,17 @@ int main(int argc, char **argv) {
 	fernvale_write16(serfd, 0xa0030000, 0x2200);
 	cmd_end();
 
+	/* Same as do_init() in main.c: without these the PMIC battery
+	 * watchdog powers the board off ~6s after USB enumeration when
+	 * running without a battery (e.g. the Fernvale board). */
+	cmd_begin("Enabling USB download mode (PMIC_CTRL10)");
+	fernvale_write16(serfd, 0xa0700a28, 0x8000);
+	cmd_end_fmt("0x%04x", fernvale_read16(serfd, 0xa0700a28));
+
+	cmd_begin("Disabling PMIC battery watchdog (PMIC_CTRL9)");
+	fernvale_write16(serfd, 0xa0700a24, 0x2);
+	cmd_end_fmt("0x%04x", fernvale_read16(serfd, 0xa0700a24));
+
 	cmd_begin("Reading RTC Baseband Power Up (0xa0710000)");
 	ret = fernvale_read16(serfd, 0xa0710000);
 	cmd_end_fmt("0x%04x", ret);
@@ -1766,7 +1777,10 @@ int main(int argc, char **argv) {
 			}
 		}
 	}
-	else {
+	else if (payloadfd == -1) {
+		/* No payload: wait for the fernly shell to be ready. With a payload
+		 * the prompt never comes back (the payload took over), so return
+		 * immediately and leave the port to whoever wants to talk to it. */
 		cmd_begin("Waiting for ready prompt");
 		fernvale_wait_banner(serfd, prompt, strlen(prompt));
 		cmd_end();

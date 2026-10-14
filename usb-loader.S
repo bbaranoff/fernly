@@ -83,3 +83,9 @@ uart_puts_print:
 
 uart_puts_exit:
 	pop	{pc}
+
+# Emit the literal pool here, then pad: fernly-usb-loader.c XORs the last
+# byte of the uploaded image with 0xff, and without padding that byte is the
+# top byte of the usb_uart_flush address above.
+	.ltorg
+padding:	.long	0, 0

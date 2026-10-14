@@ -75,7 +75,7 @@ rv_start:
 .Lprefetch_abort_handler:
 	.long	prefetch_abort_handler
 .Ldata_abort_handler:
-	.long	data_abort_handler
+	.long	data_abort_entry
 .Lreserved_handler:
 	.long	reserved_handler
 .Lirq_handler:
@@ -104,3 +104,15 @@ ram_bzero:
 	mov	pc, r0
 ram_bzero_addr:
         .long	0x700073bc
+
+/* Data abort entry: give abort mode its own small stack (just below the
+ * SVC stack, above the end of the firmware image), report the fault from
+ * C, then resume at the instruction following the faulting load/store.
+ * This lets "peek" probe unmapped addresses without freezing the board. */
+.global data_abort_entry
+data_abort_entry:
+	ldr	sp, =0x7000bffc
+	push	{r0-r3, r12, lr}
+	bl	data_abort_handler
+	pop	{r0-r3, r12, lr}
+	subs	pc, lr, #4

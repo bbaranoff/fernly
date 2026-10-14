@@ -192,9 +192,13 @@ static void usb_flush_output(int epnum)
 	/* Begin transmitting the packet */
 	writeb(USB_CTRL_EP_INCSR1_INPKTRDY, USB_CTRL_EP_INCSR1);
 
-	/* Wait for the character to transmit, so we don't double-xmit */
-	while (!readb(USB_CTRL_INTRIN))
-		asm("");
+	/* Wait for the packet to go out, but not forever: when nobody on the
+	 * host reads the port, give up instead of hanging the firmware. */
+	{
+		unsigned spins = 0;
+		while (!readb(USB_CTRL_INTRIN) && ++spins < 400000)
+			asm("");
+	}
 
 	/* Set endpoint back to OUT */
 	usb_set_mode(epnum, USB_MODE_OUT);
